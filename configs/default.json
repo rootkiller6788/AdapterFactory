@@ -1,0 +1,77 @@
+{
+  "_comment": [
+    "AdapterFactory 的口径配置。**所有阈值都在这里，代码里一个都没有。**",
+    "本文件与 src/adapterfactory/config.py 的 DEFAULTS **逐键相同**（连嵌套结构一起，只除开各处的 _comment）—— tests/test_audit_wall.py 的 test_the_shipped_config_matches_defaults 守着这件事。那条断言一度只比 acceptance 这一节，而「逐键相同」这句在只比一节的时候是**过宽**的（注释里还写过一个从来不存在的文件名 test_config.py）。",
+    "两处同时存在的理由：DEFAULTS 是「配置文件被删掉也能跑」的兜底，而本文件是「口径的唯一可见来源」。若两者漂移，那条断言会说出来，而不是让某一次运行悄悄用了另一套门槛。",
+    "改这里的任何一项都会改变 out/version.json 里的内容寻址摘要。"
+  ],
+  "base": {
+    "name": "tiny",
+    "vocab": 26,
+    "d_model": 24,
+    "n_layers": 2,
+    "n_heads": 4,
+    "d_ff": 48,
+    "seq_len": 13,
+    "seed": 20260930,
+    "_comment": "基座 = (结构, 种子) 的纯函数，不落盘（落盘只会多一个可漂移的自由度）。seq_len=13 = 5 + 2×payload_len，由 data.seq_len_of 推出；写进配置是为了让它进口径指纹。"
+  },
+  "data": {
+    "index": "data/datasets/index.json",
+    "capabilities": [
+      "upper",
+      "shift",
+      "reverse",
+      "sort"
+    ],
+    "n_eval": 48,
+    "n_train": 192,
+    "seed": 20260930,
+    "_comment": "n_eval=48 是全部分辨率的下限：两个组合的差异小于 1/48 就不可能被看见。评测与训练的 payload 用不同种子且显式互斥（8 选 4 只有 4096 种，靠「种子不同所以大概不会撞」不够）。"
+  },
+  "zoo": {
+    "rank": 8,
+    "alpha_mult": 2.0,
+    "_comment": "rank=8 是**实测标定**出来的：rank=4/steps=400 时，需要**位置移动**的两个 qv 变体（reverse-qv、sort-qv）清不过 heuristic+0.10；rank=4 把步数加到 1200 只救回 reverse（+0.3906），sort 仍差（+0.0781）；rank=8/steps=800 两个同时过关（reverse +0.4114、sort +0.1250）。标定表见 README 附录 B。alpha = alpha_mult × rank = 16，缩放系数恒为 2 —— 把倍数放进配置而不是写死，改 rank 时才是单变量。"
+  },
+  "train": {
+    "lr": 0.005,
+    "steps": 800,
+    "batch": 8,
+    "grad_clip": 1.0,
+    "optimizer": "adamw",
+    "weight_decay": 0.0,
+    "_comment": "lr=5e-3 是**实测标定**出来的。同一份代码在 lr=5e-2 时 8 个 Adapter 里有一半学不动（-all 变体全部贴在乱猜上、|g|max 命中裁剪），lr=5e-3 时全部过关。这条与 FineTuneFactory 自己记录的「lr=3e-2 时 LoRA 恰好等于乱猜」逐字同构。steps=800 与 zoo.rank=8 是同一张标定表的另一半：**单加步数不够**，rank=4 时 sort-qv 到 1200 步仍是红的。标定表见 README 附录 B。"
+  },
+  "compose": {
+    "methods": [
+      "stack",
+      "merge",
+      "route"
+    ],
+    "max_size": 3,
+    "_comment": "设计空间 = 8 个 Adapter 的全部 size 1..3 子集（8+28+56=92）× 3 方法 = 276 个组合。max_size=3 是算得动的上界，也是「三个以上同时挂」这个问题不再变得更清楚的地方。"
+  },
+  "route": {
+    "temperature": 1.0,
+    "_comment": "route 的门是 softmax(⟨h, uᵢ⟩/T)，其中 uᵢ 是**种子派生的固定随机向量，不训练**。它是结构对照，不是学出来的路由 —— 报告里逐字写明。"
+  },
+  "acceptance": {
+    "max_merge_error": 1e-12,
+    "min_single_gain_margin": 0.1,
+    "min_same_cap_subadditivity": 0.0,
+    "min_two_path_agreement": 0.5,
+    "base_chance_tolerance": 0.05,
+    "require_base_is_null": true,
+    "require_single_gain_margin": true,
+    "require_same_cap_subadditivity": true,
+    "roundtrip_tolerance": 1e-06,
+    "_comment": "min_single_gain_margin=0.10 是相对**更强的**那条基线（heuristic）而言。定 0.10 而不是 0.15：sort 的 heuristic（照抄输入）是 0.3021，要求它再高 0.15 就等于要求远超参照实现，那是在测任务天花板不是测 Adapter。max_merge_error 查的是实现错误（184 条权重空间组合实测：中位数 5.3e-16、最大 5.4e-14 —— 门槛 1e-12 对最坏那条只留约 20 倍，且这个数随 rank 与成员个数增长），不是浮点噪声，也**不**查「合并没有损失能力」（那是 merge_loss）。base_chance_tolerance=0.05 是 base_is_null 那一项两侧共用的容差，而那一项**两侧不对称**：下界 chance − tol（基座低于机会水平会抬高每一个 gain，那是危险的方向），上界 heuristic + tol（基座能看输入，「什么都不学」时是照抄，天然就在 chance 之上；sort 的不动点让它拿到 0.1823，而 copy 基线是 0.3021）——这一条第一次真实运行就是红的（sort +0.0573 > 0.05），修的是检查的口径，不是门槛的数值。require_* 一组：每一项都必须能被单独关掉，否则「用随机初始化 zoo 只验结构」的测试就只能去改门槛数值，而那会连门槛的含义一起改掉；结构性的四项（no_training_in_pipeline / producer_contained / grid_complete / cid_canonical）没有开关，因为它们在任何配置下都必须成立。"
+  },
+  "report": {
+    "headline_combos": 12,
+    "max_matrix_rows": 276,
+    "max_conflict_edges": 40,
+    "_comment": "max_matrix_rows=276 就是整张矩阵，不截断 —— 组合矩阵是本项目的主产物。"
+  }
+}

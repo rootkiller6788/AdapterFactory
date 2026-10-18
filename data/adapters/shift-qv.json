@@ -1,0 +1,132 @@
+{
+  "name": "shift-qv",
+  "file": "shift-qv.bin",
+  "digest": "bb5385d45d05cf373dec06cfab39036ff55fead3271a086226aaaddddc0e25d1",
+  "bytes": 6144,
+  "n_params": 1536,
+  "targets": [
+    "q_proj",
+    "v_proj"
+  ],
+  "rank": 8,
+  "alpha": 8.0,
+  "scale": 1.0,
+  "capability": "shift",
+  "variant": "qv",
+  "base": {
+    "key": "tiny:2l-d24-h4-f48-v26",
+    "seed": 20260930
+  },
+  "source": "produce",
+  "composed_of": [],
+  "meta": {
+    "payload": {
+      "names": [
+        "layers.0.q_proj.lora_A",
+        "layers.0.q_proj.lora_B",
+        "layers.1.q_proj.lora_A",
+        "layers.1.q_proj.lora_B",
+        "layers.0.v_proj.lora_A",
+        "layers.0.v_proj.lora_B",
+        "layers.1.v_proj.lora_A",
+        "layers.1.v_proj.lora_B"
+      ],
+      "shapes": [
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ]
+      ],
+      "offsets": [
+        0,
+        768,
+        1536,
+        2304,
+        3072,
+        3840,
+        4608,
+        5376
+      ],
+      "dtype": "float32",
+      "endian": "little",
+      "layout": "concatenated row-major, no header",
+      "n_floats": 1536
+    }
+  },
+  "spec": {
+    "label": "shift-qv",
+    "capability": "shift",
+    "variant": "qv",
+    "targets": [
+      "q_proj",
+      "v_proj"
+    ],
+    "rank": 8,
+    "alpha": 16.0,
+    "scale": 2.0
+  },
+  "train": {
+    "lr": 0.005,
+    "steps": 800,
+    "batch": 8,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "optimizer": "adamw",
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "n_train": 192
+  },
+  "train_report": {
+    "label": "shift-qv",
+    "steps": 800,
+    "first_loss": 3.2403597912168114,
+    "last_loss": 2.9454759915611257,
+    "loss_drop": 0.2948837996556857,
+    "grad_norm_first": 0.4208248837059743,
+    "grad_norm_max": 0.4208248837059743,
+    "n_params": 1536,
+    "n_train": 192,
+    "eval_acc": {
+      "reverse": 0.057291666666666664,
+      "shift": 0.921875,
+      "sort": 0.10416666666666667,
+      "upper": 0.010416666666666666
+    },
+    "eval_eos": {
+      "reverse": 0.8333333333333334,
+      "shift": 1.0,
+      "sort": 0.8958333333333334,
+      "upper": 0.2708333333333333
+    }
+  }
+}

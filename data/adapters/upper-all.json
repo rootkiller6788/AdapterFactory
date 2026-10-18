@@ -1,0 +1,262 @@
+{
+  "name": "upper-all",
+  "file": "upper-all.bin",
+  "digest": "19a3b4c772408cc66d702d5bcf245c0ed6d9975c28dabb6e3a159d5f9b143dd5",
+  "bytes": 26112,
+  "n_params": 6528,
+  "targets": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "rank": 8,
+  "alpha": 8.0,
+  "scale": 1.0,
+  "capability": "upper",
+  "variant": "all",
+  "base": {
+    "key": "tiny:2l-d24-h4-f48-v26",
+    "seed": 20260930
+  },
+  "source": "produce",
+  "composed_of": [],
+  "meta": {
+    "payload": {
+      "names": [
+        "layers.0.q_proj.lora_A",
+        "layers.0.q_proj.lora_B",
+        "layers.1.q_proj.lora_A",
+        "layers.1.q_proj.lora_B",
+        "layers.0.k_proj.lora_A",
+        "layers.0.k_proj.lora_B",
+        "layers.1.k_proj.lora_A",
+        "layers.1.k_proj.lora_B",
+        "layers.0.v_proj.lora_A",
+        "layers.0.v_proj.lora_B",
+        "layers.1.v_proj.lora_A",
+        "layers.1.v_proj.lora_B",
+        "layers.0.o_proj.lora_A",
+        "layers.0.o_proj.lora_B",
+        "layers.1.o_proj.lora_A",
+        "layers.1.o_proj.lora_B",
+        "layers.0.gate_proj.lora_A",
+        "layers.0.gate_proj.lora_B",
+        "layers.1.gate_proj.lora_A",
+        "layers.1.gate_proj.lora_B",
+        "layers.0.up_proj.lora_A",
+        "layers.0.up_proj.lora_B",
+        "layers.1.up_proj.lora_A",
+        "layers.1.up_proj.lora_B",
+        "layers.0.down_proj.lora_A",
+        "layers.0.down_proj.lora_B",
+        "layers.1.down_proj.lora_A",
+        "layers.1.down_proj.lora_B"
+      ],
+      "shapes": [
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          48
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          48
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          48
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          48
+        ],
+        [
+          24,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          48,
+          8
+        ],
+        [
+          8,
+          24
+        ],
+        [
+          48,
+          8
+        ]
+      ],
+      "offsets": [
+        0,
+        768,
+        1536,
+        2304,
+        3072,
+        3840,
+        4608,
+        5376,
+        6144,
+        6912,
+        7680,
+        8448,
+        9216,
+        9984,
+        10752,
+        11520,
+        12288,
+        13824,
+        14592,
+        16128,
+        16896,
+        18432,
+        19200,
+        20736,
+        21504,
+        22272,
+        23808,
+        24576
+      ],
+      "dtype": "float32",
+      "endian": "little",
+      "layout": "concatenated row-major, no header",
+      "n_floats": 6528
+    }
+  },
+  "spec": {
+    "label": "upper-all",
+    "capability": "upper",
+    "variant": "all",
+    "targets": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "rank": 8,
+    "alpha": 16.0,
+    "scale": 2.0
+  },
+  "train": {
+    "lr": 0.005,
+    "steps": 800,
+    "batch": 8,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "optimizer": "adamw",
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "n_train": 192
+  },
+  "train_report": {
+    "label": "upper-all",
+    "steps": 800,
+    "first_loss": 3.244198050557193,
+    "last_loss": 2.8495027061053126,
+    "loss_drop": 0.39469534445188037,
+    "grad_norm_first": 0.6870050295504326,
+    "grad_norm_max": 0.8840025654224732,
+    "n_params": 6528,
+    "n_train": 192,
+    "eval_acc": {
+      "reverse": 0.0,
+      "shift": 0.0,
+      "sort": 0.0,
+      "upper": 1.0
+    },
+    "eval_eos": {
+      "reverse": 0.4166666666666667,
+      "shift": 0.8125,
+      "sort": 0.4375,
+      "upper": 1.0
+    }
+  }
+}
